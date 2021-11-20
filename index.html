@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>FILMS</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="wrapper">
+
+        <header class="header">
+            <div class="logo"><a href="#">FILMS</a></div>
+            <nav class="main_menu">
+                <ul class="main_menu_list">
+                    <li class="main_menu_list-item"><a href="#">About</a></li>
+                    <li class="main_menu_list-item"><a href="#">Films</a></li>
+                    <li class="main_menu_list-item"><a href="#">Favourite</a></li>
+                    <li class="main_menu_list-item"><a href="#">Contacts</a></li>
+                </ul>
+            </nav>
+            <form class="form" action="#">
+                <select class="form_select" id="form-genre" name="genre" placeholder="Genre">
+                    <option value="girls">Girls</option>
+                    <option value="men">Men</option>
+                </select>
+                <select  class="form_select" id="form-lang" name="lang" placeholder="Language">
+                    <option value="english">English</option>
+                    <option value="ukrainian">Ukrainian</option>
+                </select>
+                <div class="search_block">
+                    <input class="search_block-field" id="form-search" type="text" placeholder="Search">
+                    <button class="search_block-btn" type="button" title="Search">&#128269;</button>
+                </div>
+            </form>
+        </header>
+
+        <main>
+            <section class="main_top">
+                <div class="pagination">
+                    <p>1 ... 10</p>
+                </div>
+                <div class="items_onpage">
+
+                </div>
+            </section>
+            <section class="films">
+                <div class="films_card">
+                    <div class="films_card_inner">
+                        <img src="" alt="">
+                        <h4></h4>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>Андрей Елизев
+                <a href="https://github.com/andrewelizev/" target="_blank">
+                    <img src="http://elizev.info/icons/github.png" alt="GitHub">
+                </a>
+                <a href="https://t.me/Shadber" target="_blank">
+                    <img src="http://elizev.info/icons/telegram.png" alt="Telegram">
+                </a>
+                <a href="tel:+380509418703">
+                    <img src="http://elizev.info/icons/telephone.png" alt="tel. +38(050)941-87-03">
+                </a>
+            </p>
+        </footer>
+
+    </div>
+    <script src="main.js"></script>
+</body>
+</html>

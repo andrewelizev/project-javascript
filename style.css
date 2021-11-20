@@ -1,0 +1,149 @@
+html {
+    box-sizing: border-box;
+}
+*,
+*::before,
+*::after {
+    box-sizing: inherit;
+    padding: 0;
+}
+img {
+    max-width: 100%;
+    height: 100%;
+    vertical-align: top;
+}
+
+body {
+    background-color: #2f364a;
+    color: #fff;
+    font-family: 'Arial', serif;
+}
+.wrapper {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 100vh;
+}
+
+.header {
+    background-color: #2f364a;
+    display: flex;
+    align-items: center;
+    padding: 10px 0;
+}
+.logo a {
+    font-weight: 600;
+    font-size: 30px;
+    margin-right: 20px;
+    color: #fff;
+    text-decoration: none;
+}
+.logo a:hover {
+    text-shadow: 0px 0px 5px #fff;
+}
+.main_menu_list {
+    display: flex;
+    list-style: none;
+}
+.main_menu_list-item {
+    /* padding: 10px; */
+    color: #000;
+}
+
+.main_menu_list-item a {
+    padding: 10px 20px;
+    color: #fff;
+    text-decoration: none;
+}
+.main_menu_list-item a:hover {
+    background-color: #181c25;
+}
+
+a:visited {
+    columns: #fff;
+}
+.form {
+    display: flex;
+    align-self: center;
+    justify-content: space-between;
+    width: 100%;
+}
+.form_select {
+    flex: 0 0 120px;
+    outline: none;
+    background-color: transparent;
+    color: #fff;
+    height: 35px;
+    margin-right: 10px;
+}
+.form_select:hover {
+    border-color: #181c25;
+    color: #fff;
+}
+.form_select option {
+    color: #000;
+}
+.search_block {
+    border: 1px solid grey;
+    background-color: #2f364a;
+
+}
+.search_block-field {
+    height: 100%;
+    border: none;
+    padding: 0 5px;
+    outline: none;
+    font-size: small;
+    color: #fff;
+    background-color: transparent;
+}
+.search_block-btn {
+    height: 100%;
+    background: transparent;
+    outline: none;
+    color: #fff;
+    border: none;
+    width: 30px;
+}
+
+main {
+    flex: 1 1 auto;
+    background-color: #fff;
+    color: #000;
+    padding: 0 20px;
+}
+.main_top {
+    background-color: lightgrey;
+}
+.films {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-left: -10px;
+    margin-right: -10px;
+}
+.films_card {
+    /* width: 20%; 10 */
+    width: 25%;
+    padding: 10px;
+    margin-bottom: 5px;
+}
+.films_card_inner h4 {
+    font-weight: normal;
+    font-size: 14px;
+    margin-top: 10px;
+}
+.container {
+    display: flex;
+}
+footer {
+    background-color: #2f364a;
+}
+footer img {
+    height: 20px;
+    vertical-align: middle;
+    filter: invert();
+}
