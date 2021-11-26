@@ -37,6 +37,11 @@ let linkContacts = document.getElementById('menu_contacts');
 let pages = document.getElementById('filmsPerPage');
 let searchBtn = document.getElementById('search_btn');
 
+let storage = localStorage.getItem('favFilms');
+if (storage.length == 0) {
+    localStorage.setItem('favFilms', []);
+}
+
 linkFav.onclick = () => queryData(url, showFavorites);
 linkAbout.onclick = showAbout;
 linkFilms.onclick = () => queryData(url, showFilms);
