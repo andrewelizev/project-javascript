@@ -87,7 +87,8 @@ function showFilms(data) {
         } else {
             filmFav.classList.add('film_fav');
         }
-        filmsCardInner.setAttribute('onclick', 'showThisFilm(this)');
+        filmImg.setAttribute('onclick', 'showThisFilm(this)');
+        // filmsCardInner.setAttribute('onclick', 'showThisFilm(this)');
         filmFav.setAttribute('onclick', 'favorites(this)');
         filmsCard.setAttribute('id', data[i].id);
 
@@ -205,11 +206,13 @@ function filmFilter(data) {
 }
 
 function showThisFilm(elem) {
-    if (!elem.classList.contains('films_card-modal')) {
-        elem.classList.add('films_card-modal');
-        elem.classList.remove('films_card_inner');
+    let newElem = elem.closest('div[class]');
+
+    if (!newElem.classList.contains('films_card-modal')) {
+        newElem.classList.add('films_card-modal');
+        newElem.classList.remove('films_card_inner');
     } else {
-        elem.classList.remove('films_card-modal');
-        elem.classList.add('films_card_inner');
+        newElem.classList.remove('films_card-modal');
+        newElem.classList.add('films_card_inner');
     }
 }
