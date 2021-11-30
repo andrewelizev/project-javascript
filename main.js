@@ -3,13 +3,18 @@
 // Project-javascript
 
 
-window.onload = () => queryData(url);
+window.onload = () => {
+    init();
+	queryData(url);
+};
 
 const url = 'http://api.tvmaze.com/shows?page=0';
+const mainTop = document.getElementById('main_top');
 
 let queryData = async function(url, func) {
     let response = await fetch(url);
     let data;
+    let handledData;
     // console.log(response);
     if (response.ok) {
         data = await response.json();
@@ -20,55 +25,63 @@ let queryData = async function(url, func) {
             return;
         }
 
-        if (func == showFavorites) {
-            func(data);
-        } else if (func == filmFilter) {
-            filmFilter(data);
-        } else {
-            showFilms(data);
+        if (func) {
+           handledData = func(data);
         }
+
+        showFilms(handledData || data);
     }
 };
 
-let linkAbout = document.getElementById('menu_about');
-let linkFilms = document.getElementById('menu_films');
-let linkFav = document.getElementById('menu_fav');
-let linkContacts = document.getElementById('menu_contacts');
-let pages = document.getElementById('filmsPerPage');
-let searchBtn = document.getElementById('search_btn');
+function init() {
+	let linkAbout = document.getElementById('menu_about');
+	let linkFilms = document.getElementById('menu_films');
+	let linkFav = document.getElementById('menu_fav');
+	let linkContacts = document.getElementById('menu_contacts');
+	let pages = document.getElementById('filmsPerPage');
+	let searchBtn = document.getElementById('search_btn');
+	let storage = localStorage.getItem('favFilms');
 
-let storage = localStorage.getItem('favFilms');
-if (storage.length == 0) {
-    localStorage.setItem('favFilms', []);
+	if (!storage) {
+		localStorage.setItem('favFilms', '');
+	}
+
+	linkFav.onclick = () => queryData(url, showFavorites);
+	linkAbout.onclick = showAbout;
+	linkFilms.onclick = () => queryData(url, showFilms);
+	linkContacts.onclick = showContacts;
+	pages.onchange = () => queryData(url, showFilms);
+	searchBtn.onclick = () => search();
 }
-
-linkFav.onclick = () => queryData(url, showFavorites);
-linkAbout.onclick = showAbout;
-linkFilms.onclick = () => queryData(url, showFilms);
-linkContacts.onclick = showContacts;
-pages.onchange = () => queryData(url, showFilms);
-searchBtn.onclick = () => search();
-
-// let arrFilms = queryData(url);
 
 function showFilms(data) {
     const domTarget = document.getElementById('main');
     const mainTop = document.getElementById('main_top');
-    const favFilms = localStorage.getItem('favFilms').split(',').map((item) => +item);
-    let pages = document.getElementById('filmsPerPage').value;
+	const favFilmsStorage = localStorage.getItem('favFilms');
+	mainTop.classList.remove('hide');
+    let favFilms;
+
+	if (favFilmsStorage) {
+		favFilms = favFilmsStorage.split(',').map((item) => +item);
+	}
+    let filmsPerPage = document.getElementById('filmsPerPage').value;
     let filmsContainer = document.createElement('div');
     filmsContainer.classList.add('films');
 
-    if (pages > data.length) {
-        pages = data.length;
+    if (filmsPerPage > data.length) {
+        filmsPerPage = data.length;
     }
 
-    // console.log('data', data);
+    data.forEach((film, index) => {
+		if (index >= filmsPerPage) {
+			return;
+		}
 
-    for (let i = 0; i < pages; i++) {
-        if (data[i]['show']) {
-            data[i] = data[i].show;
+		// let dataToShow = [];
+        if (film.show) {
+            film = film.show;
         }
+        let filmsCardWrapper = document.createElement('div');
         let filmsCard = document.createElement('div');
         let filmsCardInner = document.createElement('div');
         let filmImg = document.createElement('img');
@@ -77,36 +90,38 @@ function showFilms(data) {
         let filmLang = document.createElement('p');
         let filmDesc = document.createElement('div');
         let filmFav = document.createElement('div');
+        let filmCardCloseBtn = document.createElement('div');
 
+        filmsCardWrapper.classList.add('films_card_wrapper');
         filmsCard.classList.add('films_card');
         filmsCardInner.classList.add('films_card_inner');
         filmGenre.classList.add('film_genre');
         filmLang.classList.add('film_lang');
         filmDesc.classList.add('film_description');
+        filmCardCloseBtn.classList.add('close_img');
 
-        // console.log(data[i].id);
-        // console.log(favFilms);
+		filmsCardWrapper.onclick = (event) => showThisFilm(event.target.previousSibling.firstChild);
+        filmCardCloseBtn.onclick = (event) => showThisFilm(event.target.closest('div[id]').firstChild);
 
-        if (favFilms.includes(data[i].id)) {
-            filmFav.classList.add('film_fav_active');
-        } else {
-            filmFav.classList.add('film_fav');
-        }
+		if (favFilms && favFilms.includes(film.id)) {
+			filmFav.classList.add('film_fav_active');
+		} else {
+			filmFav.classList.add('film_fav');
+		}
         filmImg.setAttribute('onclick', 'showThisFilm(this)');
-        // filmsCardInner.setAttribute('onclick', 'showThisFilm(this)');
         filmFav.setAttribute('onclick', 'favorites(this)');
-        filmsCard.setAttribute('id', data[i].id);
+        filmsCard.setAttribute('id', film.id);
 
-        if (!data[i].image) {
-            filmImg.setAttribute('src', '/img/noimg.jpg');
+        if (!film.image) {
+            filmImg.setAttribute('src', './img/noimg.jpg');
         } else {
-            filmImg.setAttribute('src', data[i].image.medium);
+            filmImg.setAttribute('src', film.image.medium);
         }
 
-        filmTitle.innerHTML = data[i].name;
-        filmGenre.innerHTML = data[i].genres.join(', ');
-        filmLang.innerHTML = data[i].language;
-        filmDesc.innerHTML = data[i].summary;
+        filmTitle.innerHTML = film.name;
+        filmGenre.innerHTML = film.genres.join(', ');
+        filmLang.innerHTML = film.language;
+        filmDesc.innerHTML = film.summary;
 
         filmsCard.append(filmsCardInner);
         filmsCardInner.append(filmImg);
@@ -115,16 +130,21 @@ function showFilms(data) {
         filmsCardInner.append(filmLang);
         filmsCardInner.append(filmDesc);
         filmsCardInner.append(filmFav);
+        filmsCardInner.append(filmCardCloseBtn);
 
         filmsContainer.append(filmsCard);
-    }
+        filmsContainer.append(filmsCardWrapper);
+    });
+
 
     domTarget.replaceChildren(filmsContainer);
 }
 
 function favorites(elem) {
     let curId = +elem.closest('div[id]').id;
-    myFav = localStorage.getItem('favFilms').split(',').map((item) => +item);
+	const favFilmsStorage = localStorage.getItem('favFilms');
+
+	myFav = favFilmsStorage.split(',').map((item) => +item);
 
     if (elem.classList.contains('film_fav')) {
         elem.classList.remove('film_fav');
@@ -142,19 +162,38 @@ function favorites(elem) {
     localStorage.setItem('favFilms', myFav);
 }
 
-function showFavorites(data) {
-    const favFilms = localStorage.getItem('favFilms').split(',').map((item) => +item);
-    let dataResult = data.filter((elem) => favFilms.includes(elem.id));
+function showFavorites() {
+	// TODO: request each film by id
+	const favFilmsStorage = localStorage.getItem('favFilms');
+    let favFilms;
+    let favFilmQuery = [];
+    let url = 'https://api.tvmaze.com/shows/';
 
-    // console.log('dataResult: ', dataResult);
+	if (favFilmsStorage) {
+		favFilms = favFilmsStorage.split(',').map((item) => +item);
+		// console.log('favFilms: ', favFilms);
+	}
 
-    showFilms(dataResult);
+    const favoriteFilms = async () => {
+
+        favFilms.forEach((elem) => {
+            urlFav = `${url}${elem}`;
+            favFilmQuery.push(fetch(urlFav));
+        });
+
+        let result = await Promise.all(favFilmQuery);
+        let dataResult = await Promise.all(result.map(film => film.json()));
+
+        showFilms(dataResult);
+    };
+
+    favoriteFilms();
 }
 
 function showAbout() {
     let sectionAbout = document.getElementById('main');
     let elem = document.createElement('div');
-
+    mainTop.classList.add('hide');
     elem.innerHTML = '<h2>Find episode information for any show on any device. anytime, anywhere!</h2>';
     sectionAbout.replaceChildren(elem);
 }
@@ -173,7 +212,7 @@ function showFindError() {
 function showContacts() {
     let sectionContacts = document.getElementById('main');
     let elem = document.createElement('div');
-
+    mainTop.classList.add('hide');
     elem.innerHTML = '<h2>Our contacts:</h2><h3><a href="https://github.com/VladRusanov/lessons">https://github.com/VladRusanov/lessons</a></h3><h3><a href="http://doc.a-level.com.ua/javascript">http://doc.a-level.com.ua/javascript</a></h3><h3><a href="https://naydyonovdanil.gitbook.io/javascript/">https://naydyonovdanil.gitbook.io/javascript/</a></h3>';
     sectionContacts.replaceChildren(elem);
 }
@@ -181,13 +220,12 @@ function showContacts() {
 function search() {
     let mainUrl = 'https://api.tvmaze.com';
     let searchStr = document.getElementById('form-search').value;
+
     if (searchStr == '') {
-        // queryData(url, filmFilter);
-        queryData(url);
+        queryData(url, filmFilter);
     } else {
         let url = `${mainUrl}/search/shows?q=${searchStr}`;
-        // queryData(url, filmFilter);
-        queryData(url);
+        queryData(url, filmFilter);
     }
 
 }
@@ -196,18 +234,25 @@ function filmFilter(data) {
     let genre = document.getElementById('form_genre').value;
     let lang = document.getElementById('form-lang').value;
 
+	if (genre || lang) {
+        console.log(data);
+
+        return data.filter(function (elem) {
+            if (elem.show) {
+                elem = elem.show;
+            }
+			if (!genre && lang) {
+                return elem.language == lang;
+            } else if (genre && !lang) {
+                return elem.genres.includes(genre);
+            } else {
+                return elem.language === lang && elem.genres.includes(genre);
+            }
+		});
+	}
     console.log(data);
-    console.log(genre);
-    console.log(lang);
 
-    let dataResult = data.filter(function (elem) {
-        console.log('elem', elem);
-        console.log('elem.genre', elem.genres);
-        console.log('elem.language', elem.language);
-        return elem.includes(elem.language == lang); // !!!!!!!!
-    });
-
-    console.log(dataResult);
+    return data;
 }
 
 function showThisFilm(elem) {
@@ -216,8 +261,12 @@ function showThisFilm(elem) {
     if (!newElem.classList.contains('films_card-modal')) {
         newElem.classList.add('films_card-modal');
         newElem.classList.remove('films_card_inner');
+		newElem.parentElement.nextSibling.classList.add('modal_wrapper');
+		newElem.parentElement.nextSibling.classList.remove('films_card_wrapper');
     } else {
         newElem.classList.remove('films_card-modal');
         newElem.classList.add('films_card_inner');
+		newElem.parentElement.nextSibling.classList.remove('modal_wrapper');
+		newElem.parentElement.nextSibling.classList.add('films_card_wrapper');
     }
 }
