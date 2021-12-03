@@ -282,3 +282,33 @@ footer img {
 .hide {
     display: none;
 }
+.pagination {
+    margin: 0 auto;
+}
+.pagination ul {
+    display: flex;
+    list-style: none;
+    align-self: center;
+}
+
+.pagination li {
+    margin: 0 5px;
+}
+
+.pagination a {
+    text-decoration: none;
+    padding: 5px;
+    border: 1px solid lightgrey;
+    color: #000;
+}
+
+.pagination a:hover,
+.pagination .active {
+    background-color: grey;
+    color: #fff;
+}
+
+.prev_next_noactive {
+    pointer-events: none;
+    opacity: .3;
+}

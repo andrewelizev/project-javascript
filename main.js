@@ -15,10 +15,9 @@ let queryData = async function(url, func) {
     let response = await fetch(url);
     let data;
     let handledData;
-    // console.log(response);
+
     if (response.ok) {
         data = await response.json();
-        // console.log(data);
 
         if (data.length == 0) {
             showFindError();
@@ -28,6 +27,8 @@ let queryData = async function(url, func) {
         if (func) {
            handledData = func(data);
         }
+
+        showPagination(handledData || data);
 
         showFilms(handledData || data);
     }
@@ -77,7 +78,6 @@ function showFilms(data) {
 			return;
 		}
 
-		// let dataToShow = [];
         if (film.show) {
             film = film.show;
         }
@@ -144,7 +144,7 @@ function favorites(elem) {
     let curId = +elem.closest('div[id]').id;
 	const favFilmsStorage = localStorage.getItem('favFilms');
 
-	myFav = favFilmsStorage.split(',').map((item) => +item);
+	let myFav = favFilmsStorage.split(',').map((item) => +item);
 
     if (elem.classList.contains('film_fav')) {
         elem.classList.remove('film_fav');
@@ -171,7 +171,6 @@ function showFavorites() {
 
 	if (favFilmsStorage) {
 		favFilms = favFilmsStorage.split(',').map((item) => +item);
-		// console.log('favFilms: ', favFilms);
 	}
 
     const favoriteFilms = async () => {
@@ -184,6 +183,7 @@ function showFavorites() {
         let result = await Promise.all(favFilmQuery);
         let dataResult = await Promise.all(result.map(film => film.json()));
 
+        showPagination(dataResult);
         showFilms(dataResult);
     };
 
@@ -269,4 +269,108 @@ function showThisFilm(elem) {
 		newElem.parentElement.nextSibling.classList.remove('modal_wrapper');
 		newElem.parentElement.nextSibling.classList.add('films_card_wrapper');
     }
+}
+
+function showPagination(data) {
+    const pagination = document.getElementById('pagination');
+    let filmsPerPage = document.getElementById('filmsPerPage').value;
+
+    let filmsOnPage;
+    let ul = document.createElement('ul');
+    let li;
+    let a;
+
+    let prev = document.createElement('a');
+    let next = document.createElement('a');
+    prev.setAttribute('href', '#');
+    prev.setAttribute('id', 'prev');
+    next.setAttribute('href', '#');
+    next.setAttribute('id', 'next');
+    prev.innerHTML = '«';
+    next.innerHTML = '»';
+    prev.onclick = (event) => clickPrevNext('prev', event.target, data);
+    next.onclick = (event) => clickPrevNext('next', event.target, data);
+    prev.classList.add('prev_next_noactive');
+
+    let numFilms = data.length;
+
+    filmsOnPage = Math.floor(numFilms / filmsPerPage);
+    filmsOnPage = (filmsOnPage > 5) ? 5 : filmsOnPage;
+
+    li = document.createElement('li');
+    li.append(prev);
+    ul.append(li);
+
+    for (let i = 1; i <= filmsOnPage; i++) {
+        li = document.createElement('li');
+        a = document.createElement('a');
+        a.innerHTML = i;
+        a.setAttribute('href', '#');
+        a.onclick = (event) => showPaginatedFilms(event.target, data);
+        li.append(a);
+        ul.append(li);
+    }
+
+    li = document.createElement('li');
+    li.append(next);
+    ul.append(li);
+
+    ul.firstChild.nextSibling.firstChild.classList.add('active');
+
+    pagination.replaceChildren(ul);
+}
+
+function showPaginatedFilms(elem, data) {
+    let filmsPerPage = document.getElementById('filmsPerPage').value;
+    let num = elem.innerText;
+    let prev = document.getElementById('prev');
+    let next = document.getElementById('next');
+
+    let list = elem.parentNode.parentNode.childNodes; // collection with <li>
+
+    for (let node of list) {
+        if (node.firstChild.classList.contains('active')) {
+            node.firstChild.classList.remove('active');
+        }
+    }
+    elem.classList.add('active');
+
+    if (+num === 1) {
+        prev.classList.add('prev_next_noactive');
+        next.classList.remove('prev_next_noactive');
+    } else if (+num === 5) {
+        prev.classList.remove('prev_next_noactive');
+        next.classList.add('prev_next_noactive');
+    } else {
+        prev.classList.remove('prev_next_noactive');
+        next.classList.remove('prev_next_noactive');
+    }
+
+    if (data.show) {
+        data = data.show;
+    }
+
+    let startIndex = (num * filmsPerPage) - (filmsPerPage - 1);
+    let endIndex = (num * filmsPerPage) + 1;
+
+    let arrPaginatedFilms = data.slice(startIndex, endIndex);
+
+    showFilms(arrPaginatedFilms);
+}
+
+function clickPrevNext(direction, elem, data) {
+    let list = elem.parentNode.parentNode.childNodes; // collection with <li>
+    let newElem;
+
+    for (let node of list) {
+        if (node.firstChild.classList.contains('active')) {
+            if (direction === 'next') {
+                newElem = node.nextSibling;
+            } else {
+                newElem = node.previousSibling;
+            }
+        }
+    }
+
+    showPaginatedFilms(newElem.firstChild, data);
 }
